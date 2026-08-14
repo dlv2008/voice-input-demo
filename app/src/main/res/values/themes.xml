@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.VoiceInputDemo" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/voice_primary</item>
+        <item name="colorSecondary">@color/voice_primary</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/voice_surface</item>
+        <item name="android:navigationBarColor">@color/voice_surface</item>
+    </style>
+
+    <style name="Theme.VoiceInputDemo" parent="Base.Theme.VoiceInputDemo" />
+</resources>

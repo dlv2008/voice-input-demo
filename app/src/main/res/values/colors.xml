@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="voice_primary">#2F6FED</color>
+    <color name="voice_primary_soft">#EAF1FF</color>
+    <color name="voice_recording">#E5484D</color>
+    <color name="voice_confirmed">#1F2937</color>
+    <color name="voice_partial">#6B7280</color>
+    <color name="voice_hint">#9CA3AF</color>
+    <color name="voice_surface">#F4F7FB</color>
+    <color name="voice_card">#FFFFFFFF</color>
+    <color name="voice_outline">#D8E0EC</color>
+    <color name="voice_outline_soft">#E4EAF2</color>
+    <color name="voice_wave_label">#718096</color>
+    <color name="voice_wave_baseline">#E8EDF4</color>
+    <color name="voice_wave_stopped">#C8D2DF</color>
+    <color name="voice_wave_quiet">#A9B7C8</color>
+    <color name="voice_wave_active">#7899CE</color>
+</resources>
