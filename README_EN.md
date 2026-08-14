@@ -79,7 +79,7 @@ The online model provides responsive feedback. SenseVoice performs a second pass
 ### 2. Clone
 
 ~~~powershell
-git clone https://github.com/YOUR_GITHUB_USERNAME/voice-input-demo.git
+git clone https://github.com/dlv2008/voice-input-demo.git
 Set-Location voice-input-demo
 ~~~
 
@@ -209,9 +209,8 @@ The current recognition pipeline runs on-device and does not upload recordings. 
 
 ## License
 
-**To be selected before publication: PROJECT_LICENSE.**
+[Apache License 2.0](LICENSE)
 
-The maintainer must choose an explicit project license before making the repository public. Apache License 2.0 is a possible permissive option to evaluate. Third-party runtimes and models do not automatically inherit this project's license; comply with each upstream LICENSE/NOTICE. See the [third-party notice template](docs/THIRD_PARTY_NOTICES.md).
 
 ## Acknowledgements
 

@@ -82,7 +82,7 @@ flowchart TD
 ### 2. 克隆
 
 ~~~powershell
-git clone https://github.com/YOUR_GITHUB_USERNAME/voice-input-demo.git
+git clone https://github.com/dlv2008/voice-input-demo.git
 Set-Location voice-input-demo
 ~~~
 
@@ -212,9 +212,8 @@ app/build/outputs/apk/debug/app-debug.apk
 
 ## 开源许可
 
-**发布前待选择：Apache License 2.0。**
-
-建议项目维护者在公开仓库前明确选择许可证；若希望采用宽松许可证，可评估 Apache License 2.0。第三方运行库与模型不自动继承本项目许可证，必须分别遵守它们各自的 LICENSE/NOTICE。参见 [第三方依赖核对模板](docs/THIRD_PARTY_NOTICES.md)。
+本项目源码采用 [Apache License 2.0](LICENSE)。
+第三方运行库和模型权重适用各自独立的许可证。
 
 ## 致谢
 
