@@ -211,7 +211,7 @@ The current recognition pipeline runs on-device and does not upload recordings. 
 
 **To be selected before publication: PROJECT_LICENSE.**
 
-The maintainer must choose an explicit project license before making the repository public. Apache License 2.0 is a possible permissive option to evaluate. Third-party runtimes and models do not automatically inherit this project's license; comply with each upstream LICENSE/NOTICE. See the [third-party notice template](docs/THIRD_PARTY_NOTICES_TEMPLATE.md).
+The maintainer must choose an explicit project license before making the repository public. Apache License 2.0 is a possible permissive option to evaluate. Third-party runtimes and models do not automatically inherit this project's license; comply with each upstream LICENSE/NOTICE. See the [third-party notice template](docs/THIRD_PARTY_NOTICES.md).
 
 ## Acknowledgements
 

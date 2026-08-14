@@ -214,7 +214,7 @@ app/build/outputs/apk/debug/app-debug.apk
 
 **发布前待选择：Apache License 2.0。**
 
-建议项目维护者在公开仓库前明确选择许可证；若希望采用宽松许可证，可评估 Apache License 2.0。第三方运行库与模型不自动继承本项目许可证，必须分别遵守它们各自的 LICENSE/NOTICE。参见 [第三方依赖核对模板](docs/THIRD_PARTY_NOTICES_TEMPLATE.md)。
+建议项目维护者在公开仓库前明确选择许可证；若希望采用宽松许可证，可评估 Apache License 2.0。第三方运行库与模型不自动继承本项目许可证，必须分别遵守它们各自的 LICENSE/NOTICE。参见 [第三方依赖核对模板](docs/THIRD_PARTY_NOTICES.md)。
 
 ## 致谢
 
