@@ -83,28 +83,83 @@ git clone https://github.com/dlv2008/voice-input-demo.git
 Set-Location voice-input-demo
 ~~~
 
-### 3. Add the sherpa-onnx AAR
+### 3. Create the local dependency directories
 
-Download the following file to `app/libs/`:
+Git does not preserve empty directories. The AAR and model files are also excluded by `.gitignore`, so create the directories after cloning.
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force app\libs | Out-Null
+New-Item -ItemType Directory -Force app\src\main\assets | Out-Null
+```
+
+Linux, macOS, or WSL:
+
+```bash
+mkdir -p app/libs
+mkdir -p app/src/main/assets
+```
+
+Expected base layout:
+
+```text
+voice-input-demo/
+└── app/
+    ├── libs/
+    └── src/
+        └── main/
+            └── assets/
+```
+
+### 4. Add the sherpa-onnx AAR
+
+Download:
 
 - [sherpa-onnx-static-link-onnxruntime-1.13.4.aar](https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.4/sherpa-onnx-static-link-onnxruntime-1.13.4.aar)
 
-Expected path:
+Copy it to:
 
-~~~text
+```text
 app/libs/sherpa-onnx-static-link-onnxruntime-1.13.4.aar
-~~~
+```
 
-### 4. Add the models
+Do not rename the file. `app/build.gradle.kts` references this exact name:
 
-Official model archives:
+```kotlin
+implementation(
+    files("libs/sherpa-onnx-static-link-onnxruntime-1.13.4.aar")
+)
+```
 
-- [Streaming Zipformer 14M](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2)
-- [SenseVoice int8](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2)
+The AAR provides the sherpa-onnx Kotlin/Java API, JNI libraries, and ONNX Runtime support.
 
-From the repository root in WSL:
+### 5. Add the speech models
 
-~~~bash
+The project uses two model packages.
+
+#### 5.1 Streaming online model
+
+Used to produce the live gray transcription while recording:
+
+- [Streaming Zipformer 14M Chinese model](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2)
+
+#### 5.2 SenseVoice second-pass model
+
+Used to produce the black confirmed text after a speech segment closes:
+
+- [SenseVoice int8 model](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2)
+
+Extract both archives with 7-Zip, `tar`, or another tool supporting `.tar.bz2`. Copy the extracted directories into:
+
+```text
+app/src/main/assets/
+```
+
+From WSL, Linux, or macOS, you can run:
+
+```bash
+mkdir -p app/src/main/assets
 cd app/src/main/assets
 
 wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2
@@ -114,45 +169,112 @@ rm sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2
 wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2
 tar -xjf sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2
 rm sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2
-~~~
+```
 
-Expected layout:
+### 6. Verify the final layout
 
-~~~text
-app/src/main/assets/
-├── sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23/
-│   ├── encoder-epoch-99-avg-1.int8.onnx
-│   ├── decoder-epoch-99-avg-1.onnx
-│   ├── joiner-epoch-99-avg-1.int8.onnx
-│   └── tokens.txt
-└── sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17/
-    ├── model.int8.onnx
-    └── tokens.txt
-~~~
+The following files must exist:
 
-> Models and the AAR are intentionally excluded from normal Git history. This keeps the repository small, avoids GitHub's 100 MiB file limit, and avoids redistributing third-party binaries before their terms are reviewed. You must still review each model archive's LICENSE before publishing an APK.
+```text
+app/
+├── libs/
+│   └── sherpa-onnx-static-link-onnxruntime-1.13.4.aar
+└── src/
+    └── main/
+        └── assets/
+            ├── sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23/
+            │   ├── encoder-epoch-99-avg-1.int8.onnx
+            │   ├── decoder-epoch-99-avg-1.onnx
+            │   ├── joiner-epoch-99-avg-1.int8.onnx
+            │   └── tokens.txt
+            └── sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17/
+                ├── model.int8.onnx
+                └── tokens.txt
+```
 
-### 5. Build and run
+Avoid an extra nested directory such as:
+
+```text
+assets/model-directory/model-directory/model.int8.onnx
+```
+
+The application looks up the models using the exact directory names shown above.
+
+### 7. What is `tokens.txt`?
+
+`tokens.txt` is the vocabulary that maps model output token IDs to characters, words, or subwords.
+
+Each model package has its own `tokens.txt`:
+
+```text
+Streaming Zipformer
+└── tokens.txt
+
+SenseVoice
+└── tokens.txt
+```
+
+Important rules:
+
+- use the `tokens.txt` included in the same archive as the ONNX model;
+- do not share one token file between the two models;
+- do not replace it with a token file from another model version;
+- a missing or incompatible token file may cause initialization failure or incorrect text output.
+
+Code mapping:
+
+```text
+AndroidOnlineAsrEngine
+→ Streaming Zipformer tokens.txt
+
+AndroidVoiceCore
+→ SenseVoice tokens.txt
+```
+
+### 8. Why are these files excluded from Git?
+
+The AAR and model files are excluded because:
+
+1. model files are large and would make cloning and updating the repository expensive;
+2. normal GitHub repositories have a 100 MiB per-file limit;
+3. the AAR and models are third-party artifacts with their own licenses;
+4. downloading from official sources preserves clear provenance and version information;
+5. model upgrades should not permanently expand the Git history.
+
+Do not force-add these files with `git add -f`.
+
+The APK published on GitHub Releases already contains the runtime libraries and models required by end users. Only developers building from source need to download these files separately.
+
+### 9. Build and run
 
 1. Open the repository root in Android Studio.
-2. Wait for Gradle Sync to finish.
-3. Connect an arm64-v8a Android device over USB and authorize ADB.
-4. Select the `app` configuration and click Run.
-5. Grant microphone and notification permissions on first launch.
+2. Wait for Gradle Sync to complete.
+3. Connect an arm64-v8a Android device over USB.
+4. Authorize USB debugging on the device.
+5. Select the `app` run configuration.
+6. Click Run.
+7. Grant microphone and notification permissions on first launch.
 
-Command-line checks:
+Command-line verification:
 
-~~~powershell
+```powershell
 .\gradlew.bat testDebugUnitTest
 .\gradlew.bat assembleDebug
-~~~
+```
 
 The debug APK is normally written to:
 
-~~~text
+```text
 app/build/outputs/apk/debug/app-debug.apk
-~~~
+```
 
+The current project only builds:
+
+```text
+arm64-v8a
+```
+
+It cannot run on x86, x86_64, or 32-bit ARM-only devices and emulators.
 
 ## Transcript semantics
 

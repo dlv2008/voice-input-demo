@@ -98,16 +98,87 @@ Set-Location voice-input-demo
 app/libs/sherpa-onnx-static-link-onnxruntime-1.13.4.aar
 ~~~
 
-### 4. 准备模型
+### 3. 建立本地依赖目录
 
-官方模型包：
+Git 不保存空目录，而且 AAR 和模型文件被 `.gitignore` 排除，因此首次克隆后需要手动建立目录。
 
-- [Streaming Zipformer 14M](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2)
-- [SenseVoice int8](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2)
+Windows PowerShell：
 
-在仓库根目录的 WSL 终端中执行：
+```powershell
+New-Item -ItemType Directory -Force app\libs | Out-Null
+New-Item -ItemType Directory -Force app\src\main\assets | Out-Null
+```
 
-~~~bash
+Linux、macOS 或 WSL：
+
+```bash
+mkdir -p app/libs
+mkdir -p app/src/main/assets
+```
+
+建立后的基本结构：
+
+```text
+voice-input-demo/
+└── app/
+    ├── libs/
+    └── src/
+        └── main/
+            └── assets/
+```
+
+### 4. 下载 sherpa-onnx AAR
+
+下载：
+
+- [sherpa-onnx-static-link-onnxruntime-1.13.4.aar](https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.4/sherpa-onnx-static-link-onnxruntime-1.13.4.aar)
+
+将文件复制到：
+
+```text
+app/libs/sherpa-onnx-static-link-onnxruntime-1.13.4.aar
+```
+
+文件名不要修改，因为 `app/build.gradle.kts` 按照这个名称加载 AAR：
+
+```kotlin
+implementation(
+    files("libs/sherpa-onnx-static-link-onnxruntime-1.13.4.aar")
+)
+```
+
+AAR 提供 sherpa-onnx 的 Kotlin/Java 接口、JNI 库以及 ONNX Runtime 运行支持。
+
+### 5. 下载语音模型
+
+项目使用两套模型。
+
+#### 5.1 在线流式识别模型
+
+用途：录音过程中持续产生灰色的实时转录结果。
+
+下载：
+
+- [Streaming Zipformer 14M 中文模型](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2)
+
+#### 5.2 SenseVoice 二次识别模型
+
+用途：语音段结束后进行第二遍识别，产生黑色确认文本。
+
+下载：
+
+- [SenseVoice int8 模型](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2)
+
+使用 7-Zip、tar 或其他支持 `.tar.bz2` 的工具解压，将解压得到的两个完整目录放入：
+
+```text
+app/src/main/assets/
+```
+
+在 WSL、Linux 或 macOS 中，也可以在仓库根目录执行：
+
+```bash
+mkdir -p app/src/main/assets
 cd app/src/main/assets
 
 wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2
@@ -117,45 +188,112 @@ rm sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23.tar.bz2
 wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2
 tar -xjf sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2
 rm sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2
-~~~
+```
 
-目录应为：
+### 6. 检查最终目录
 
-~~~text
-app/src/main/assets/
-├── sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23/
-│   ├── encoder-epoch-99-avg-1.int8.onnx
-│   ├── decoder-epoch-99-avg-1.onnx
-│   ├── joiner-epoch-99-avg-1.int8.onnx
-│   └── tokens.txt
-└── sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17/
-    ├── model.int8.onnx
-    └── tokens.txt
-~~~
+最终应至少存在以下文件：
 
-> 模型和 AAR 默认不进入普通 Git 历史。这样可避免仓库膨胀、GitHub 100 MiB 限制及未经核对的第三方二进制再分发。发布 APK 前仍须核对各模型包内的 LICENSE。
+```text
+app/
+├── libs/
+│   └── sherpa-onnx-static-link-onnxruntime-1.13.4.aar
+└── src/
+    └── main/
+        └── assets/
+            ├── sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23/
+            │   ├── encoder-epoch-99-avg-1.int8.onnx
+            │   ├── decoder-epoch-99-avg-1.onnx
+            │   ├── joiner-epoch-99-avg-1.int8.onnx
+            │   └── tokens.txt
+            └── sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17/
+                ├── model.int8.onnx
+                └── tokens.txt
+```
 
-### 5. 构建与运行
+不要形成多余的嵌套目录，例如：
 
-1. 在 Android Studio 打开仓库根目录。
-2. 等待 Gradle Sync 完成。
-3. 通过 USB 连接 arm64-v8a Android 设备并授权 ADB。
-4. 选择 `app` 配置，点击 Run。
-5. 首次启动授予麦克风和通知权限。
+```text
+assets/模型目录/模型目录/model.int8.onnx
+```
+
+应用代码按照上面给出的固定目录名称查找模型。
+
+### 7. `tokens.txt` 是什么
+
+`tokens.txt` 是模型的词表文件，用于把模型输出的 token 编号转换成文字、字符或子词。
+
+两套模型各自拥有一份 `tokens.txt`：
+
+```text
+在线 Zipformer 模型
+└── tokens.txt
+
+SenseVoice 模型
+└── tokens.txt
+```
+
+注意：
+
+- `tokens.txt` 必须与相应的 ONNX 模型来自同一个模型压缩包；
+- 不要让两套模型共用一份 `tokens.txt`；
+- 不要单独下载其他版本的 `tokens.txt` 进行替换；
+- 文件缺失或版本不匹配时，可能导致模型加载失败或输出文字错误。
+
+代码中的对应关系为：
+
+```text
+AndroidOnlineAsrEngine
+→ 在线 Zipformer 目录中的 tokens.txt
+
+AndroidVoiceCore
+→ SenseVoice 目录中的 tokens.txt
+```
+
+### 8. 为什么这些文件没有提交到 GitHub
+
+AAR 和模型文件没有进入普通 Git 历史，主要原因是：
+
+1. 模型文件体积较大，会明显增加仓库克隆和更新成本；
+2. GitHub 普通 Git 文件存在 100 MiB 的单文件限制；
+3. AAR 和模型属于第三方构建产物，需要分别遵守上游许可证；
+4. 从官方地址下载，可以明确文件来源和模型版本；
+5. 后续更新模型时，不需要把大型二进制文件写入整个 Git 历史。
+
+请不要使用 `git add -f` 强制提交这些文件。
+
+GitHub Release 中提供的 APK 已经包含运行所需的本地库和模型。普通用户只需安装 APK，不需要单独下载模型；只有从源码构建的开发者需要执行上述步骤。
+
+### 9. 构建和运行
+
+1. 使用 Android Studio 打开仓库根目录；
+2. 等待 Gradle Sync 完成；
+3. 使用 USB 连接 arm64-v8a Android 手机；
+4. 在手机上授权 USB 调试；
+5. 在 Android Studio 中选择 `app`；
+6. 点击 Run；
+7. 首次启动时授予麦克风和通知权限。
 
 命令行验证：
 
-~~~powershell
+```powershell
 .\gradlew.bat testDebugUnitTest
 .\gradlew.bat assembleDebug
-~~~
+```
 
-Debug APK 通常位于：
+Debug APK 默认位于：
 
-~~~text
+```text
 app/build/outputs/apk/debug/app-debug.apk
-~~~
+```
 
+当前项目只构建：
+
+```text
+arm64-v8a
+```
+
+因此不能安装到只支持 x86、x86_64 或 32 位 ARM 的设备和模拟器。
 
 ## 交互语义
 
