@@ -6,14 +6,14 @@
 
 > 当前阶段：v0.1.0 发布候选版  
 > 适用设备：Android 8.0（API 26）及以上、arm64-v8a  
-> 项目性质：技术验证 / 开源演示，不应直接视为生产级转录产品
+> 项目性质：技术验证 / 开源演示，不应直接视为生产级转录产品  
 > 项目地址：https://github.com/dlv2008/voice-input-demo
 > LICENSE：Apache License 2.0
 
 
 ## 下载 APK
 
-- [下载最新版本](https://github.com/dlv008/voice-input-demo/releases/latest)
+- [下载最新版本](https://github.com/dlv2008/voice-input-demo/releases/latest)
 - 当前建议资产名：`voice-input-demo-v0.1.0-arm64-v8a.apk`
 - 安装前请核对 Release 页面提供的 SHA-256
 
